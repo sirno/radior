@@ -1,0 +1,6 @@
+[radios]
+nts = "http://stream-relay-geo.ntslive.net/stream"
+nts2 = "http://stream-relay-geo.ntslive.net/stream2"
+nts3 = "http://stream-relay-geo.ntslive.net/stream3"
+bollwerk = "https://radiobollwerk.out.airtime.pro/radiobollwerk_a"
+lot = "https://streamingv2.shoutcast.com/the-lot-radio"
