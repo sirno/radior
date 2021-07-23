@@ -2,9 +2,9 @@
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
 
+use chrono::Duration;
 use cursive::event::Event;
-use cursive::views::TextContent;
-use cursive::views::TextView;
+use cursive::views::{TextContent, TextView};
 use cursive::{Cursive, CursiveExt};
 use std::env;
 use std::ffi::CStr;
@@ -19,6 +19,24 @@ macro_rules! cstr {
             .expect("CString::new failed.")
             .as_ptr()
     }};
+}
+
+pub trait clock {
+    fn get_seconds(&self) -> i64;
+
+    fn clock(&self) -> String {
+        let s = self.get_seconds();
+        let ds = s % 60;
+        let dm = s / 60 % 60;
+        let dh = s / 60;
+        return format!("{:02}:{:02}:{:02}", dh, dm, ds);
+    }
+}
+
+impl clock for Duration {
+    fn get_seconds(&self) -> i64 {
+        return self.num_seconds();
+    }
 }
 
 unsafe fn check_error(status: i32) {
@@ -36,6 +54,31 @@ unsafe fn readcstr(s: *const ::std::os::raw::c_char) -> String {
         return "".to_string();
     }
     return CStr::from_ptr(s).to_string_lossy().into_owned();
+}
+
+unsafe fn readcstrf(s: *const ::std::os::raw::c_char) -> f32 {
+    if s.is_null() {
+        return 0.0;
+    }
+    return CStr::from_ptr(s)
+        .to_string_lossy()
+        .into_owned()
+        .parse()
+        .unwrap();
+}
+
+unsafe fn get_display(ctx: *mut mpv_handle) -> String {
+    let title: String = readcstr(mpv_get_property_string(ctx, cstr!("media-title")));
+    let vol: f32 = readcstrf(mpv_get_property_string(ctx, cstr!("volume")));
+    let time: f32 = readcstrf(mpv_get_property_string(ctx, cstr!("time-pos")));
+    let duration: f32 = readcstrf(mpv_get_property_string(ctx, cstr!("duration")));
+    return format!(
+        "\n Title: {:15} \n Volume: {} \n {} / {} \n ",
+        title,
+        vol,
+        Duration::seconds(time as i64).clock(),
+        Duration::seconds(duration as i64).clock(),
+    );
 }
 
 fn main() {
@@ -77,17 +120,7 @@ fn main() {
 
         let mut siv = Cursive::new();
 
-        // let title: String = readcstr(mpv_get_property_string(ctx, cstr!("property-list")));
-        let title: String = readcstr(mpv_get_property_string(ctx, cstr!("media-title")));
-
-        let vol: f32 = readcstr(mpv_get_property_string(ctx, cstr!("volume")))
-            .parse()
-            .unwrap();
-
-        let content = TextContent::new(format!(
-            "Title: {}\nVolume: {}\nPress q to quit.",
-            title, vol
-        ));
+        let content = TextContent::new(get_display(ctx));
         let central_text = TextView::new_with_content(content.clone());
 
         siv.add_layer(central_text);
@@ -111,14 +144,7 @@ fn main() {
                 ctx,
                 [cstr!("add"), cstr!("volume"), cstr!("2"), std::ptr::null()].as_mut_ptr(),
             );
-            let vol: f32 = readcstr(mpv_get_property_string(ctx, cstr!("volume")))
-                .parse()
-                .unwrap();
-            let title: String = readcstr(mpv_get_property_string(ctx, cstr!("media-title")));
-            content_vol_up_clone.set_content(format!(
-                "Title: {}\nVolume: {}\nPress q to quit.",
-                title, vol
-            ));
+            content_vol_up_clone.set_content(get_display(ctx));
         });
 
         let content_vol_down_clone = content.clone();
@@ -127,26 +153,12 @@ fn main() {
                 ctx,
                 [cstr!("add"), cstr!("volume"), cstr!("-2"), std::ptr::null()].as_mut_ptr(),
             );
-            let title: String = readcstr(mpv_get_property_string(ctx, cstr!("media-title")));
-            let vol: f32 = readcstr(mpv_get_property_string(ctx, cstr!("volume")))
-                .parse()
-                .unwrap();
-            content_vol_down_clone.set_content(format!(
-                "Title: {}\nVolume: {}\nPress q to quit.",
-                title, vol
-            ));
+            content_vol_down_clone.set_content(get_display(ctx));
         });
 
         let content_refresh = content.clone();
         siv.add_global_callback(Event::Refresh, move |_s| {
-            let title: String = readcstr(mpv_get_property_string(ctx, cstr!("media-title")));
-            let vol: f32 = readcstr(mpv_get_property_string(ctx, cstr!("volume")))
-                .parse()
-                .unwrap();
-            content_refresh.set_content(format!(
-                "Title: {}\nVolume: {}\nPress q to quit.",
-                title, vol
-            ));
+            content_refresh.set_content(get_display(ctx));
         });
 
         siv.set_autorefresh(true);

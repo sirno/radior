@@ -6,6 +6,7 @@ edition = "2018"
 [dependencies]
 toml = "0.5.8"
 cursive = "0.16.3"
+chrono = "0.4.19"
 
 [build-dependencies]
 bindgen = "0.59.0"
