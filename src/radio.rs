@@ -16,7 +16,6 @@ impl Radio {
 
     pub fn next(&mut self) {
         self.station_index = (self.station_index + 1) % self.station_list.len();
-        println!("{}", self.station_index);
     }
 
     pub fn prev(&mut self) {
@@ -25,7 +24,6 @@ impl Radio {
         } else {
             self.station_index -= 1;
         }
-        println!("{}", self.station_index);
     }
 
     pub fn get_url(&self) -> String {

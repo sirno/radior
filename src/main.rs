@@ -13,7 +13,6 @@ use mpv::Mpv;
 use radio::Radio;
 use shellexpand;
 use std::cell::RefCell;
-use std::fs;
 use std::rc::Rc;
 use toml::Value;
 
@@ -28,11 +27,17 @@ struct Opts {
 
 fn main() {
     let opts: Opts = Opts::parse();
-    let input = opts.input.expect("No input provided.");
+    let input = opts.input.unwrap_or_else(|| "nts".to_string());
 
-    let config_path = shellexpand::tilde(opts.config.as_str());
+    let expanded_path = shellexpand::tilde(opts.config.as_str());
+    let config_path = std::path::Path::new(expanded_path.as_ref());
 
-    let config: Value = fs::read_to_string(config_path.as_ref())
+    if !config_path.exists() {
+        println!("Unable to finde config list at {}.", expanded_path);
+        std::process::exit(1);
+    }
+
+    let config: Value = std::fs::read_to_string(config_path)
         .expect("Unable to read config.")
         .parse()
         .unwrap();
