@@ -7,15 +7,11 @@ mod radio;
 mod view;
 
 use clap::{AppSettings, Clap};
-use cursive::event::Event;
-use cursive::views::{TextContent, TextView};
 use cursive::{Cursive, CursiveExt};
-use mpv::Mpv;
 use radio::Radio;
 use shellexpand;
-use std::cell::RefCell;
-use std::rc::Rc;
 use toml::Value;
+use view::MpvView;
 
 #[derive(Clap)]
 #[clap(version = "0.1", author = "Nicolas Ochsner <nicolasochsner@gmail.com>")]
@@ -58,87 +54,25 @@ fn main() {
         idx += 1;
     }
 
-    let station_url = station_urls[station_index].as_str().unwrap();
+    let mut siv = Cursive::new();
 
-    let radio_state = RefCell::new(Radio::new_with_index(
+    let radio = Radio::new_with_index(
         stations,
         station_urls
             .iter()
             .map(|v| v.as_str().unwrap().to_string())
             .collect(),
         station_index,
-    ));
+    );
 
-    let radio_state_ref = Rc::new(radio_state);
+    let mpv_view = MpvView::new(radio);
 
-    let ctx = Rc::new(RefCell::new(Mpv::new()));
+    siv.add_layer(mpv_view);
 
-    ctx.borrow_mut().loadfile(station_url);
-
-    let mut siv = Cursive::new();
-
-    let radio_display_state = ctx.borrow_mut().get_streamstate();
-    let content = TextContent::new(radio_display_state.get_display());
-    let central_text = TextView::new_with_content(content.clone());
-
-    siv.add_layer(central_text);
-
-    let ctx_clone = ctx.clone();
     siv.add_global_callback('q', move |s| {
         s.quit();
-        ctx_clone.borrow_mut().quit();
-    });
-
-    let ctx_clone = ctx.clone();
-    siv.add_global_callback('n', move |_s| {
-        ctx_clone.borrow_mut().playlist_next();
-    });
-
-    let ctx_clone = ctx.clone();
-    siv.add_global_callback('p', move |_s| {
-        ctx_clone.borrow_mut().playlist_prev();
-    });
-
-    let ctx_clone = ctx.clone();
-    let rs_ref = radio_state_ref.clone();
-    siv.add_global_callback(',', move |_s| {
-        rs_ref.borrow_mut().prev();
-        ctx_clone
-            .borrow_mut()
-            .loadfile(rs_ref.borrow().get_url().as_str());
-    });
-
-    let ctx_clone = ctx.clone();
-    let rs_ref = radio_state_ref.clone();
-    siv.add_global_callback('.', move |_s| {
-        rs_ref.borrow_mut().next();
-        ctx_clone
-            .borrow_mut()
-            .loadfile(rs_ref.borrow().get_url().as_str());
-    });
-
-    let ctx_clone = ctx.clone();
-    let content_clone = content.clone();
-    siv.add_global_callback('=', move |_s| {
-        ctx_clone.borrow_mut().add_property("volume", 2);
-        content_clone.set_content(ctx_clone.borrow_mut().get_streamstate().get_display());
-    });
-
-    let ctx_clone = ctx.clone();
-    let content_clone = content.clone();
-    siv.add_global_callback('-', move |_s| {
-        ctx_clone.borrow_mut().add_property("volume", -2);
-        content_clone.set_content(ctx_clone.borrow_mut().get_streamstate().get_display());
-    });
-
-    let ctx_clone = ctx.clone();
-    let content_clone = content.clone();
-    siv.add_global_callback(Event::Refresh, move |_s| {
-        content_clone.set_content(ctx_clone.borrow_mut().get_streamstate().get_display());
     });
 
     siv.set_fps(10);
     siv.run();
-
-    ctx.borrow_mut().terminate();
 }
