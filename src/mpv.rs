@@ -82,73 +82,89 @@ pub struct Mpv {
 }
 
 impl Mpv {
-    pub unsafe fn new() -> Self {
-        let handle = mpv_create();
-        check_error(mpv_set_option_string(
-            handle,
-            cstr!("input-default-bindings"),
-            cstr!("yes"),
-        ));
+    pub fn new() -> Self {
+        unsafe {
+            let handle = mpv_create();
+            check_error(mpv_set_option_string(
+                handle,
+                cstr!("input-default-bindings"),
+                cstr!("yes"),
+            ));
 
-        check_error(mpv_set_option_string(
-            handle,
-            cstr!("input-vo-keyboard"),
-            cstr!("yes"),
-        ));
+            check_error(mpv_set_option_string(
+                handle,
+                cstr!("input-vo-keyboard"),
+                cstr!("yes"),
+            ));
 
-        check_error(mpv_initialize(handle));
-        return Self { handle: handle };
+            check_error(mpv_initialize(handle));
+            return Self { handle: handle };
+        }
     }
 
-    pub unsafe fn loadfile(&mut self, filename: &str) {
-        check_error(mpv_command(
-            self.handle,
-            [cstr!("loadfile"), cstr!(filename), std::ptr::null()].as_mut_ptr(),
-        ));
+    pub fn loadfile(&mut self, filename: &str) {
+        unsafe {
+            check_error(mpv_command(
+                self.handle,
+                [cstr!("loadfile"), cstr!(filename), std::ptr::null()].as_mut_ptr(),
+            ));
+        }
     }
 
-    pub unsafe fn playlist_next(&mut self) {
-        mpv_command(
-            self.handle,
-            [cstr!("playlist-next"), std::ptr::null()].as_mut_ptr(),
-        );
+    pub fn playlist_next(&mut self) {
+        unsafe {
+            mpv_command(
+                self.handle,
+                [cstr!("playlist-next"), std::ptr::null()].as_mut_ptr(),
+            );
+        }
     }
 
-    pub unsafe fn playlist_prev(&mut self) {
-        mpv_command(
-            self.handle,
-            [cstr!("playlist-prev"), std::ptr::null()].as_mut_ptr(),
-        );
+    pub fn playlist_prev(&mut self) {
+        unsafe {
+            mpv_command(
+                self.handle,
+                [cstr!("playlist-prev"), std::ptr::null()].as_mut_ptr(),
+            );
+        }
     }
 
-    pub unsafe fn add_property(&mut self, property: &str, value: i32) {
-        mpv_command(
-            self.handle,
-            [
-                cstr!("add"),
-                cstr!(property),
-                cstr!(value.to_string()),
-                std::ptr::null(),
-            ]
-            .as_mut_ptr(),
-        );
+    pub fn add_property(&mut self, property: &str, value: i32) {
+        unsafe {
+            mpv_command(
+                self.handle,
+                [
+                    cstr!("add"),
+                    cstr!(property),
+                    cstr!(value.to_string()),
+                    std::ptr::null(),
+                ]
+                .as_mut_ptr(),
+            );
+        }
     }
 
-    pub unsafe fn terminate(&mut self) {
-        mpv_terminate_destroy(self.handle);
+    pub fn terminate(&mut self) {
+        unsafe {
+            mpv_terminate_destroy(self.handle);
+        }
     }
 
-    pub unsafe fn quit(&mut self) {
-        mpv_command(self.handle, [cstr!("quit"), std::ptr::null()].as_mut_ptr());
+    pub fn quit(&mut self) {
+        unsafe {
+            mpv_command(self.handle, [cstr!("quit"), std::ptr::null()].as_mut_ptr());
+        }
     }
 
-    pub unsafe fn get_streamstate(&mut self) -> StreamState {
-        return StreamState {
-            stream_title: self.get_title(),
-            stream_duration: self.get_duration(),
-            stream_time: self.get_time(),
-            stream_volume: self.get_volume(),
-        };
+    pub fn get_streamstate(&mut self) -> StreamState {
+        unsafe {
+            return StreamState {
+                stream_title: self.get_title(),
+                stream_duration: self.get_duration(),
+                stream_time: self.get_time(),
+                stream_volume: self.get_volume(),
+            };
+        }
     }
 
     unsafe fn get_title(&mut self) -> String {
