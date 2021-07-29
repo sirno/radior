@@ -6,8 +6,6 @@
 #[path = "cutils.rs"]
 #[macro_use]
 mod cutils;
-// #[path = "radio.rs"]
-// mod radio;
 
 use chrono::Duration;
 use cutils::{readcstr, readcstrf};

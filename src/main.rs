@@ -11,7 +11,8 @@ use cursive::{Cursive, CursiveExt};
 use radio::Radio;
 use shellexpand;
 use toml::Value;
-use view::MpvView;
+use url::Url;
+use view::RadioView;
 
 #[derive(Clap)]
 #[clap(version = "0.1", author = "Nicolas Ochsner <nicolasochsner@gmail.com>")]
@@ -25,6 +26,9 @@ struct Opts {
 fn main() {
     let opts: Opts = Opts::parse();
     let input = opts.input.unwrap_or_else(|| "nts".to_string());
+
+    // check if input is url
+    if Url::parse(input.as_str()).is_ok() {}
 
     let expanded_path = shellexpand::tilde(opts.config.as_str());
     let config_path = std::path::Path::new(expanded_path.as_ref());
@@ -65,7 +69,7 @@ fn main() {
         station_index,
     );
 
-    let mpv_view = MpvView::new(radio);
+    let mpv_view = RadioView::new(radio);
 
     siv.add_layer(mpv_view);
 
