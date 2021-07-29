@@ -74,26 +74,6 @@ fn main() {
         let ctx = Rc::new(RefCell::new(Mpv::new()));
 
         ctx.borrow_mut().loadfile(station_url);
-        // let ctx_clone = mpv_create();
-
-        // check_error(mpv_set_option_string(
-        //     ctx,
-        //     cstr!("input-default-bindings"),
-        //     cstr!("yes"),
-        // ));
-
-        // check_error(mpv_set_option_string(
-        //     ctx,
-        //     cstr!("input-vo-keyboard"),
-        //     cstr!("yes"),
-        // ));
-
-        // check_error(mpv_initialize(ctx));
-
-        // check_error(mpv_command(
-        //     ctx,
-        //     [cstr!("loadfile"), cstr!(station_url), std::ptr::null()].as_mut_ptr(),
-        // ));
 
         let mut siv = Cursive::new();
 
