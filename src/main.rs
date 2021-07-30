@@ -10,6 +10,7 @@ use clap::{AppSettings, Clap};
 use cursive::{Cursive, CursiveExt};
 use radio::Radio;
 use shellexpand;
+use std::fs;
 use toml::Value;
 use url::Url;
 use view::RadioView;
@@ -33,12 +34,15 @@ fn main() {
     let expanded_path = shellexpand::tilde(opts.config.as_str());
     let config_path = std::path::Path::new(expanded_path.as_ref());
 
+    // write config if it doesnt exist
     if !config_path.exists() {
-        println!("Unable to finde config list at {}.", expanded_path);
-        std::process::exit(1);
+        let raw_config = include_str!("config.toml");
+        let config_path_directory = config_path.parent().unwrap();
+        fs::create_dir_all(config_path_directory).expect("Unable to create directories.");
+        fs::write(config_path, raw_config).expect("Unable to write config file.");
     }
 
-    let config: Value = std::fs::read_to_string(config_path)
+    let config: Value = fs::read_to_string(config_path)
         .expect("Unable to read config.")
         .parse()
         .unwrap();

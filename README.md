@@ -6,7 +6,5 @@ At last, another radio on the command line.
 
 ```bash
 brew install mpv
-mkdir -p ~/.config/radior
-cp config.toml ~/.config/radior
 cargo install --path .
 ```
