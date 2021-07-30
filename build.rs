@@ -22,8 +22,6 @@ fn main() {
         // The input header we would like to generate
         // bindings for.
         .header("include/mpv/wrapper.h")
-        .clang_arg("-I/opt/homebrew/include")
-        .clang_arg("-L/opt/homebrew/lib")
         // Tell cargo to invalidate the built crate whenever any of the
         // included header files changed.
         .parse_callbacks(Box::new(bindgen::CargoCallbacks))
