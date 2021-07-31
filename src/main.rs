@@ -8,6 +8,7 @@ mod view;
 
 use clap::{AppSettings, Clap};
 use cursive::view::View;
+use cursive::views::Dialog;
 use cursive::{Cursive, CursiveExt};
 use radio::Radio;
 use shellexpand;
@@ -15,6 +16,7 @@ use std::fs;
 use std::io::ErrorKind;
 use toml::Value;
 use url::Url;
+use view::{playerhelp, radiohelp};
 use view::{PlayerView, RadioView};
 
 #[derive(Clap)]
@@ -57,10 +59,15 @@ fn main() {
     };
 
     let mut siv = Cursive::new();
+    let gethelp: fn() -> Dialog;
 
     let boxed_view: Box<dyn View> = match Url::parse(input.as_str()) {
-        Ok(url) => Box::new(PlayerView::new_with_url(url.to_string())),
+        Ok(url) => {
+            gethelp = playerhelp;
+            Box::new(PlayerView::new_with_url(url.to_string()))
+        }
         Err(_) => {
+            gethelp = radiohelp;
             let radios = &config["radios"].as_table().unwrap();
 
             let stations: Vec<String> = radios.keys().cloned().collect();
@@ -94,6 +101,33 @@ fn main() {
         s.quit();
     });
 
+    // Help / View keymappings
+    siv.add_global_callback('?', move |s| {
+        if let Some(pos) = s.screen_mut().find_layer_from_name("help_view") {
+            s.screen_mut().remove_layer(pos);
+        } else {
+            s.add_layer(gethelp());
+        }
+    });
+
     siv.set_fps(10);
     siv.run();
 }
+
+// fn help() -> Dialog {
+//     let bindings = r###"
+// General<br>
+// -: Decrease volume<br>
+// =: Increase volume<br>
+// n: Next track<br>
+// p: Previous track<br><br>
+// Radio<br>
+// ,: Previous station<br>
+// .: Next Station<br><br>
+// Misc<br>
+// q: Exit<br>
+// ?: Toggle this help menu<br>
+// "###;
+
+//     return Dialog::around(cursive_markup::MarkupView::html(&bindings));
+// }
