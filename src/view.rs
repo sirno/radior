@@ -61,12 +61,16 @@ impl<T: View> ViewWrapper for PlayerView<T> {
                 self.mpv.add_property("volume", -2);
                 return EventResult::Consumed(None);
             }
-            Event::Char('n') => {
+            Event::Char('<') => {
                 self.mpv.playlist_next();
                 return EventResult::Consumed(None);
             }
-            Event::Char('p') => {
+            Event::Char('>') => {
                 self.mpv.playlist_prev();
+                return EventResult::Consumed(None);
+            }
+            Event::Char('p') => {
+                self.mpv.forward_keypress('p');
                 return EventResult::Consumed(None);
             }
             Event::Refresh => {
@@ -104,8 +108,8 @@ fn print_player_help() -> String {
 General<br>
 -: Decrease volume<br>
 =: Increase volume<br>
-n: Next track<br>
-p: Previous track<br><br>
+>: Next track<br>
+<: Previous track<br><br>
 "###
     .to_string()
 }

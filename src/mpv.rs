@@ -150,6 +150,15 @@ impl Mpv {
         }
     }
 
+    pub fn forward_keypress(&mut self, key: char) {
+        unsafe {
+            mpv_command(
+                self.handle,
+                [cstr!("keypress"), cstr!(key.to_string()), std::ptr::null()].as_mut_ptr(),
+            );
+        }
+    }
+
     pub fn quit(&mut self) {
         unsafe {
             mpv_command(self.handle, [cstr!("quit"), std::ptr::null()].as_mut_ptr());
