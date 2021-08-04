@@ -7,13 +7,8 @@ use std::path::PathBuf;
 fn main() {
     pkg_config::probe_library("mpv").unwrap();
 
-    println!("cargo:rustc-link-lib=mpv");
-
     // Tell cargo to invalidate the built crate whenever the wrapper changes
     println!("cargo:rerun-if-changed=include/mpv/wrapper.h");
-
-    println!("cargo:rustc-link-lib=dylib=mpv");
-    println!("cargo:rustc-link-search=native=/opt/homebrew/lib");
 
     // The bindgen::Builder is the main entry point
     // to bindgen, and lets you build up options for
@@ -22,6 +17,8 @@ fn main() {
         // The input header we would like to generate
         // bindings for.
         .header("include/mpv/wrapper.h")
+        .clang_arg("-I/opt/homebrew/include")
+        .clang_arg("-L/opt/homebrew/lib")
         // Tell cargo to invalidate the built crate whenever any of the
         // included header files changed.
         .parse_callbacks(Box::new(bindgen::CargoCallbacks))
