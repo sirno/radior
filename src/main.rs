@@ -6,7 +6,7 @@ mod mpv;
 mod radio;
 mod view;
 
-use clap::{AppSettings, Clap};
+use clap::Parser;
 use cursive::view::View;
 use cursive::views::Dialog;
 use cursive::{Cursive, CursiveExt};
@@ -19,9 +19,8 @@ use url::Url;
 use view::{playerhelp, radiohelp};
 use view::{PlayerView, RadioView};
 
-#[derive(Clap)]
+#[derive(Parser)]
 #[clap(version = "0.1", author = "Nicolas Ochsner <nicolasochsner@gmail.com>")]
-#[clap(setting = AppSettings::ColoredHelp)]
 struct Opts {
     input: Option<String>,
     #[clap(long, default_value = "~/.config/radior/config.toml")]
