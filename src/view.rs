@@ -97,22 +97,26 @@ impl<T: View> ViewWrapper for RadioView<PlayerView<T>> {
         match event {
             Event::Char('.') => {
                 self.radio.next();
-                self.player_view.mpv.playlist_clear().unwrap();
-                self.player_view.mpv.playlist_load_files(&[(
-                    self.radio.get_url().as_str(),
-                    FileState::AppendPlay,
-                    None,
-                )]).unwrap();
+                self.player_view
+                    .mpv
+                    .playlist_load_files(&[(
+                        self.radio.get_url().as_str(),
+                        FileState::Replace,
+                        None,
+                    )])
+                    .unwrap();
                 return EventResult::Consumed(None);
             }
             Event::Char(',') => {
                 self.radio.prev();
-                self.player_view.mpv.playlist_clear().unwrap();
-                self.player_view.mpv.playlist_load_files(&[(
-                    self.radio.get_url().as_str(),
-                    FileState::AppendPlay,
-                    None,
-                )]).unwrap();
+                self.player_view
+                    .mpv
+                    .playlist_load_files(&[(
+                        self.radio.get_url().as_str(),
+                        FileState::Replace,
+                        None,
+                    )])
+                    .unwrap();
                 return EventResult::Consumed(None);
             }
             _ => self.player_view.on_event(event),

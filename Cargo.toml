@@ -6,8 +6,8 @@ edition = "2018"
 [dependencies]
 chrono = "0.4.19"
 clap = { version = "3.0.5", features = ["derive"] }
-cursive = "0.16.3"
-cursive-markup = "0.2.0"
+cursive = "0.18.0"
+cursive-markup = "0.3.0"
 derive_more = "0.99.17"
 libmpv = "2.0.1"
 shellexpand = "2.1.0"
@@ -15,5 +15,4 @@ toml = "0.5.8"
 url = "2.2.2"
 
 [build-dependencies]
-bindgen = "0.59.0"
 pkg-config = "0.3.19"
