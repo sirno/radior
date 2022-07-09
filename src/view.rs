@@ -1,10 +1,12 @@
-use super::mpv::Mpv;
 use super::radio::Radio;
+use super::stream_state::StreamState;
+
 use cursive::event::{Event, EventResult};
 use cursive::traits::Nameable;
 use cursive::view::{View, ViewWrapper};
 use cursive::views::{Dialog, TextContent, TextView};
 use cursive_markup::MarkupView;
+use libmpv::{FileState, Mpv};
 
 pub struct PlayerView<T: View> {
     view: T,
@@ -13,21 +15,27 @@ pub struct PlayerView<T: View> {
 }
 
 impl PlayerView<TextView> {
-    pub fn new() -> Self {
-        let mut mpv = Mpv::new();
-        let content = TextContent::new(mpv.get_streamstate().get_display());
+    pub fn new() -> Result<Self, libmpv::Error> {
+        let mpv = Mpv::new()?;
+        let content = TextContent::new(mpv.get_display());
         let view = TextView::new_with_content(content.clone());
-        return Self {
+        Ok(Self {
             view: view,
             content: content,
             mpv: mpv,
-        };
+        })
     }
 
-    pub fn new_with_url(url: String) -> Self {
-        let mut pv = Self::new();
-        pv.mpv.loadfile(url.as_str());
-        return pv;
+    pub fn new_with_url(url: String) -> Result<Self, libmpv::Error> {
+        match Self::new() {
+            Ok(player) => {
+                player
+                    .mpv
+                    .playlist_load_files(&[(url.as_str(), FileState::AppendPlay, None)])?;
+                Ok(player)
+            }
+            Err(e) => Err(e),
+        }
     }
 }
 
@@ -37,14 +45,14 @@ pub struct RadioView<T: View> {
 }
 
 impl RadioView<PlayerView<TextView>> {
-    pub fn new(radio: Radio) -> Self {
-        let mut player_view = PlayerView::new();
-        player_view.mpv.loadfile(radio.get_url().as_str());
-
-        return Self {
-            player_view: player_view,
-            radio: radio,
-        };
+    pub fn new(radio: Radio) -> Result<Self, libmpv::Error> {
+        match PlayerView::new_with_url(radio.get_url()) {
+            Ok(player_view) => Ok(Self {
+                player_view: player_view,
+                radio: radio,
+            }),
+            Err(e) => Err(e),
+        }
     }
 }
 
@@ -54,28 +62,27 @@ impl<T: View> ViewWrapper for PlayerView<T> {
     fn wrap_on_event(&mut self, event: Event) -> EventResult {
         match event {
             Event::Char('=') => {
-                self.mpv.add_property("volume", 2);
+                self.mpv.add_property("volume", 2).unwrap();
                 return EventResult::Consumed(None);
             }
             Event::Char('-') => {
-                self.mpv.add_property("volume", -2);
+                self.mpv.add_property("volume", -2).unwrap();
                 return EventResult::Consumed(None);
             }
             Event::Char('<') => {
-                self.mpv.playlist_next();
+                self.mpv.playlist_previous_weak().unwrap();
                 return EventResult::Consumed(None);
             }
             Event::Char('>') => {
-                self.mpv.playlist_prev();
+                self.mpv.playlist_next_weak().unwrap();
                 return EventResult::Consumed(None);
             }
             Event::Char('p') => {
-                self.mpv.forward_keypress('p');
+                self.mpv.command("keypress", &["p"]).unwrap();
                 return EventResult::Consumed(None);
             }
             Event::Refresh => {
-                self.content
-                    .set_content(self.mpv.get_streamstate().get_display());
+                self.content.set_content(self.mpv.get_display());
                 return self.view.on_event(event);
             }
             _ => self.view.on_event(event),
@@ -90,12 +97,22 @@ impl<T: View> ViewWrapper for RadioView<PlayerView<T>> {
         match event {
             Event::Char('.') => {
                 self.radio.next();
-                self.player_view.mpv.loadfile(self.radio.get_url().as_str());
+                self.player_view.mpv.playlist_clear().unwrap();
+                self.player_view.mpv.playlist_load_files(&[(
+                    self.radio.get_url().as_str(),
+                    FileState::AppendPlay,
+                    None,
+                )]).unwrap();
                 return EventResult::Consumed(None);
             }
             Event::Char(',') => {
                 self.radio.prev();
-                self.player_view.mpv.loadfile(self.radio.get_url().as_str());
+                self.player_view.mpv.playlist_clear().unwrap();
+                self.player_view.mpv.playlist_load_files(&[(
+                    self.radio.get_url().as_str(),
+                    FileState::AppendPlay,
+                    None,
+                )]).unwrap();
                 return EventResult::Consumed(None);
             }
             _ => self.player_view.on_event(event),

@@ -9,6 +9,8 @@ mod cutils;
 
 use chrono::Duration;
 use cutils::{readcstr, readcstrf};
+use derive_more::{Deref, DerefMut};
+use libmpv::Mpv;
 use std::cmp::{max, min};
 use std::ffi::CStr;
 
@@ -35,12 +37,12 @@ impl clock for Duration {
 #[derive(Default, Clone)]
 pub struct StreamState {
     stream_title: String,
-    stream_duration: f32,
-    stream_time: f32,
-    stream_volume: f32,
+    stream_duration: f64,
+    stream_time: f64,
+    stream_volume: f64,
 }
 
-const TILE_SIZE: i32 = 20;
+const TILE_SIZE: usize = 20;
 
 impl StreamState {
     pub fn get_display(&self) -> String {
@@ -64,6 +66,17 @@ impl StreamState {
             size = TILE_SIZE as usize,
         );
     }
+
+    pub fn new(mpv: Mpv) -> Self {
+        Self {
+            stream_title: mpv
+                .get_property("media-title")
+                .unwrap_or("Station".to_string()),
+            stream_duration: mpv.get_property("duration").unwrap_or(0.),
+            stream_time: mpv.get_property("time-pos").unwrap_or(0.),
+            stream_volume: mpv.get_property("volume").unwrap_or(0.),
+        }
+    }
 }
 
 unsafe fn check_error(status: i32) {
@@ -76,39 +89,21 @@ unsafe fn check_error(status: i32) {
     }
 }
 
-#[derive(Debug, Copy, Clone)]
-pub struct Mpv {
-    handle: *mut mpv_handle,
+#[derive(Deref, DerefMut)]
+pub struct MpvWrapper {
+    mpv: Mpv,
 }
 
-impl Mpv {
-    pub fn new() -> Self {
-        unsafe {
-            let handle = mpv_create();
-            check_error(mpv_set_option_string(
-                handle,
-                cstr!("input-default-bindings"),
-                cstr!("yes"),
-            ));
-
-            check_error(mpv_set_option_string(
-                handle,
-                cstr!("input-vo-keyboard"),
-                cstr!("yes"),
-            ));
-
-            check_error(mpv_initialize(handle));
-            return Self { handle: handle };
+impl MpvWrapper {
+    pub fn new() -> Result<Self, libmpv::Error> {
+        match Mpv::new() {
+            Ok(mpv) => Ok(Self { mpv }),
+            Err(e) => Err(e),
         }
     }
 
     pub fn loadfile(&mut self, filename: &str) {
-        unsafe {
-            check_error(mpv_command(
-                self.handle,
-                [cstr!("loadfile"), cstr!(filename), std::ptr::null()].as_mut_ptr(),
-            ));
-        }
+        self.loadfile(filename);
     }
 
     pub fn playlist_next(&mut self) {

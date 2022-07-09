@@ -2,8 +2,8 @@
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
 
-mod mpv;
 mod radio;
+mod stream_state;
 mod view;
 
 use clap::Parser;
@@ -27,7 +27,7 @@ struct Opts {
     config: String,
 }
 
-fn main() {
+fn main() -> Result<(), libmpv::Error> {
     let opts: Opts = Opts::parse();
     let input = opts.input.unwrap_or_else(|| "nts".to_string());
 
@@ -63,7 +63,7 @@ fn main() {
     let boxed_view: Box<dyn View> = match Url::parse(input.as_str()) {
         Ok(url) => {
             gethelp = playerhelp;
-            Box::new(PlayerView::new_with_url(url.to_string()))
+            Box::new(PlayerView::new_with_url(url.to_string())?)
         }
         Err(_) => {
             gethelp = radiohelp;
@@ -90,7 +90,7 @@ fn main() {
                     .collect(),
                 station_index,
             );
-            Box::new(RadioView::new(radio))
+            Box::new(RadioView::new(radio)?)
         }
     };
 
@@ -111,22 +111,5 @@ fn main() {
 
     siv.set_fps(10);
     siv.run();
+    Ok(())
 }
-
-// fn help() -> Dialog {
-//     let bindings = r###"
-// General<br>
-// -: Decrease volume<br>
-// =: Increase volume<br>
-// n: Next track<br>
-// p: Previous track<br><br>
-// Radio<br>
-// ,: Previous station<br>
-// .: Next Station<br><br>
-// Misc<br>
-// q: Exit<br>
-// ?: Toggle this help menu<br>
-// "###;
-
-//     return Dialog::around(cursive_markup::MarkupView::html(&bindings));
-// }

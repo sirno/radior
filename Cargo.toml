@@ -1,16 +1,18 @@
 [package]
 name = "radior"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2018"
 
 [dependencies]
-toml = "0.5.8"
-cursive = "0.16.3"
 chrono = "0.4.19"
-shellexpand = "2.1.0"
-clap = { version = "3.0.5", features=["derive"] }
-url = "2.2.2"
+clap = { version = "3.0.5", features = ["derive"] }
+cursive = "0.16.3"
 cursive-markup = "0.2.0"
+derive_more = "0.99.17"
+libmpv = "2.0.1"
+shellexpand = "2.1.0"
+toml = "0.5.8"
+url = "2.2.2"
 
 [build-dependencies]
 bindgen = "0.59.0"
