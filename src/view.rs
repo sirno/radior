@@ -78,7 +78,18 @@ impl<T: View> ViewWrapper for PlayerView<T> {
                 return EventResult::Consumed(None);
             }
             Event::Char('p') => {
-                self.mpv.command("keypress", &["p"]).unwrap();
+                match self.mpv.get_property("pause") {
+                    Ok(pause) => {
+                        if pause {
+                            self.mpv.unpause().unwrap();
+                        } else {
+                            self.mpv.pause().unwrap();
+                        }
+                    }
+                    Err(e) => {
+                        println!("{:?}", e);
+                    }
+                }
                 return EventResult::Consumed(None);
             }
             Event::Refresh => {
