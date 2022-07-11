@@ -2,7 +2,8 @@ use chrono::Duration;
 use libmpv::Mpv;
 use std::cmp::{max, min};
 
-const TILE_SIZE: i64 = 20;
+const TILE_SIZE: usize = 20;
+const LINGER: i64 = 4;
 
 pub trait clock {
     fn get_seconds(&self) -> i64;
@@ -25,6 +26,7 @@ impl clock for Duration {
 pub trait StreamState {
     fn get_display(&self) -> String;
     fn get_title(&self) -> String;
+    fn get_media_title(&self) -> String;
     fn get_duration(&self) -> f64;
     fn get_time(&self) -> f64;
     fn get_volume(&self) -> f64;
@@ -32,20 +34,9 @@ pub trait StreamState {
 
 impl StreamState for Mpv {
     fn get_display(&self) -> String {
-        let mut title = self.get_title().to_string();
-        let title_size = title.len() as i64;
-        if title_size > TILE_SIZE {
-            let linger = 4;
-            let mut offset =
-                ((2. * self.get_time()) as i64 % (title_size - TILE_SIZE + 2 * linger)) - linger;
-            offset = max(min(offset, title_size - TILE_SIZE), 0);
-            let start = offset as usize;
-            let end = (TILE_SIZE + offset) as usize;
-            title = self.get_title()[start..end].to_string();
-        }
         return format!(
             "\n Title: {:size$} \n Volume: {} \n {} / {} \n ",
-            title,
+            self.get_title(),
             self.get_volume(),
             Duration::seconds(self.get_time() as i64).clock(),
             Duration::seconds(self.get_duration() as i64).clock(),
@@ -54,6 +45,29 @@ impl StreamState for Mpv {
     }
 
     fn get_title(&self) -> String {
+        let title = self.get_media_title();
+        let title_size = title.len();
+        let title_size_int = title_size as i64;
+        let tile_size_int = TILE_SIZE as i64;
+        if title == " - " {
+            return "Station".to_string();
+        }
+        match title_size {
+            0 => "Station".to_string(),
+            1..=TILE_SIZE => title,
+            _ => {
+                let mut offset = ((2. * self.get_time()) as i64
+                    % (title_size_int - tile_size_int + 2 * LINGER))
+                    - LINGER;
+                offset = max(min(offset, title_size as i64 - tile_size_int), 0);
+                let start = offset as usize;
+                let end = (tile_size_int + offset) as usize;
+                title[start..end].to_string()
+            }
+        }
+    }
+
+    fn get_media_title(&self) -> String {
         self.get_property("media-title")
             .unwrap_or("Station".to_string())
     }
