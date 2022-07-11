@@ -2,6 +2,8 @@
 # Created by https://www.toptal.com/developers/gitignore/api/rust,macos,visualstudiocode,direnv
 # Edit at https://www.toptal.com/developers/gitignore?templates=rust,macos,visualstudiocode,direnv
 
+.vscode
+
 ### direnv ###
 .direnv
 .envrc
