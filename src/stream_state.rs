@@ -46,16 +46,15 @@ impl StreamState for Mpv {
 
     fn get_title(&self) -> String {
         let title = self.get_media_title();
-        let title_size = title.len();
-        let title_size_int = title_size as i64;
-        let tile_size_int = TILE_SIZE as i64;
         if title == " - " {
             return "Station".to_string();
         }
-        match title_size {
+        match title.len() {
             0 => "Station".to_string(),
             1..=TILE_SIZE => title,
-            _ => {
+            title_size => {
+                let title_size_int = title_size as i64;
+                let tile_size_int = TILE_SIZE as i64;
                 let mut offset = ((2. * self.get_time()) as i64
                     % (title_size_int - tile_size_int + 2 * LINGER))
                     - LINGER;
