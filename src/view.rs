@@ -5,7 +5,6 @@ use cursive::event::{Event, EventResult};
 use cursive::traits::Nameable;
 use cursive::view::{View, ViewWrapper};
 use cursive::views::{Dialog, TextContent, TextView};
-use cursive_markup::MarkupView;
 use libmpv::{FileState, Mpv};
 
 pub struct PlayerView<T: View> {
@@ -137,20 +136,20 @@ impl<T: View> ViewWrapper for RadioView<PlayerView<T>> {
 
 fn print_player_help() -> String {
     r###"
-General<br>
--: Decrease volume<br>
-=: Increase volume<br>
->: Next track<br>
-<: Previous track<br><br>
+General
+-: Decrease volume
+=: Increase volume
+>: Next track
+<: Previous track
 "###
     .to_string()
 }
 
 fn print_radio_help() -> String {
     let radio_bindings = r###"
-Radio<br>
-,: Previous station<br>
-.: Next Station<br><br>
+Radio
+,: Previous station
+.: Next Station
 "###;
     let mut bindings = print_player_help().to_owned();
     bindings.push_str(radio_bindings);
@@ -159,9 +158,9 @@ Radio<br>
 
 fn print_general_help() -> String {
     r###"
-Misc<br>
-q: Exit<br>
-?: Toggle this help menu<br>
+Misc
+q: Exit
+?: Toggle this help menu
 "###
     .to_string()
 }
@@ -169,11 +168,11 @@ q: Exit<br>
 pub fn playerhelp() -> Dialog {
     let mut bindings = print_player_help().to_owned();
     bindings.push_str(print_general_help().as_str());
-    Dialog::around(MarkupView::html(bindings.as_str()).with_name("help_view"))
+    Dialog::around(TextView::new(bindings.as_str()).with_name("help_view")).title("Help")
 }
 
 pub fn radiohelp() -> Dialog {
     let mut bindings = print_radio_help().to_owned();
     bindings.push_str(print_general_help().as_str());
-    Dialog::around(MarkupView::html(bindings.as_str()).with_name("help_view"))
+    Dialog::around(TextView::new(bindings.as_str()).with_name("help_view")).title("Help")
 }
