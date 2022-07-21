@@ -5,14 +5,18 @@ edition = "2018"
 
 [dependencies]
 chrono = "0.4.19"
-clap = { version = "3.0.5", features = ["derive"] }
-cursive = "0.18.0"
-cursive-markup = "0.3.0"
+clap = { version = "3.2.14", features = ["derive"] }
+cursive_buffered_backend = "0.6.0"
 derive_more = "0.99.17"
 libmpv = "2.0.1"
 shellexpand = "2.1.0"
-toml = "0.5.8"
+toml = "0.5.9"
 url = "2.2.2"
 
+[dependencies.cursive]
+version = "0.17.0"
+default-features = false
+features = ["termion-backend"]
+
 [build-dependencies]
-pkg-config = "0.3.19"
+pkg-config = "0.3.25"

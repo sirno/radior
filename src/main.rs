@@ -9,7 +9,7 @@ mod view;
 use clap::Parser;
 use cursive::view::View;
 use cursive::views::Dialog;
-use cursive::{Cursive, CursiveExt};
+use cursive::Cursive;
 use radio::Radio;
 use shellexpand;
 use std::fs;
@@ -57,7 +57,14 @@ fn main() -> Result<(), libmpv::Error> {
         },
     };
 
-    let mut siv = Cursive::new();
+    let backend_init = || -> Box<dyn cursive::backend::Backend> {
+        let backend = cursive::backends::termion::Backend::init().unwrap();
+        let buffered_backend = cursive_buffered_backend::BufferedBackend::new(backend);
+        Box::new(buffered_backend)
+    };
+
+    let mut app = Cursive::new();
+
     let gethelp: fn() -> Dialog;
 
     let boxed_view: Box<dyn View> = match Url::parse(input.as_str()) {
@@ -94,14 +101,14 @@ fn main() -> Result<(), libmpv::Error> {
         }
     };
 
-    siv.add_layer(boxed_view);
+    app.add_layer(boxed_view);
 
-    siv.add_global_callback('q', move |s| {
+    app.add_global_callback('q', move |s| {
         s.quit();
     });
 
     // Help / View keymappings
-    siv.add_global_callback('?', move |s| {
+    app.add_global_callback('?', move |s| {
         if let Some(pos) = s.screen_mut().find_layer_from_name("help_view") {
             s.screen_mut().remove_layer(pos);
         } else {
@@ -109,7 +116,7 @@ fn main() -> Result<(), libmpv::Error> {
         }
     });
 
-    siv.set_fps(10);
-    siv.run();
+    app.set_fps(10);
+    app.run_with(backend_init);
     Ok(())
 }
