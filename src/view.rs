@@ -137,10 +137,10 @@ impl<T: View> ViewWrapper for RadioView<PlayerView<T>> {
 fn print_player_help() -> String {
     r###"
 General
--: Decrease volume
-=: Increase volume
->: Next track
-<: Previous track
+- Decrease volume
+= Increase volume
+> Next track
+< Previous track
 "###
     .to_string()
 }
@@ -148,8 +148,8 @@ General
 fn print_radio_help() -> String {
     let radio_bindings = r###"
 Radio
-,: Previous station
-.: Next Station
+, Previous station
+. Next Station
 "###;
     let mut bindings = print_player_help().to_owned();
     bindings.push_str(radio_bindings);
@@ -159,8 +159,8 @@ Radio
 fn print_general_help() -> String {
     r###"
 Misc
-q: Exit
-?: Toggle this help menu
+q Exit
+? Toggle this help menu
 "###
     .to_string()
 }
