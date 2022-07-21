@@ -38,9 +38,31 @@ impl PlayerView<TextView> {
     }
 }
 
+impl<T> PlayerView<T>
+where
+    T: View,
+{
+    pub fn get_display(&self) -> String {
+        self.mpv.get_display()
+    }
+}
+
 pub struct RadioView<T: View> {
     player_view: T,
     radio: Radio,
+}
+
+impl<T> RadioView<PlayerView<T>>
+where
+    T: View,
+{
+    pub fn get_display(&self) -> String {
+        format!(
+            "\n     {} \n{}",
+            self.radio.get_name(),
+            self.player_view.get_display()
+        )
+    }
 }
 
 impl RadioView<PlayerView<TextView>> {
@@ -92,7 +114,7 @@ impl<T: View> ViewWrapper for PlayerView<T> {
                 return EventResult::Consumed(None);
             }
             Event::Refresh => {
-                self.content.set_content(self.mpv.get_display());
+                self.content.set_content(self.get_display());
                 return self.view.on_event(event);
             }
             _ => self.view.on_event(event),
@@ -128,6 +150,10 @@ impl<T: View> ViewWrapper for RadioView<PlayerView<T>> {
                     )])
                     .unwrap();
                 return EventResult::Consumed(None);
+            }
+            Event::Refresh => {
+                self.player_view.content.set_content(self.get_display());
+                return self.player_view.view.on_event(event);
             }
             _ => self.player_view.on_event(event),
         }

@@ -47,10 +47,10 @@ impl StreamState for Mpv {
     fn get_title(&self) -> String {
         let title = self.get_media_title();
         if title == " - " {
-            return "Station".to_string();
+            return "---".to_string();
         }
         match title.len() {
-            0 => "Station".to_string(),
+            0 => "---".to_string(),
             1..=TILE_SIZE => title,
             title_size => {
                 let title_size_int = title_size as i64;

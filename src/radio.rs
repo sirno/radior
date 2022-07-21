@@ -29,4 +29,8 @@ impl Radio {
     pub fn get_url(&self) -> String {
         return self.station_urls[self.station_index].clone();
     }
+
+    pub fn get_name(&self) -> String {
+        return self.station_list[self.station_index].clone();
+    }
 }
