@@ -1,7 +1,12 @@
 [package]
 name = "radior"
 version = "0.2.0"
+authors = ["nico <nicos.letters@gmail.com>"]
 edition = "2018"
+description = "At last, another radio on the command line."
+repository = "https://github.com/sirno/radior"
+license = "MIT"
+license-file = "LICENSE"
 
 [dependencies]
 chrono = "0.4.19"
