@@ -6,7 +6,6 @@ edition = "2018"
 description = "At last, another radio on the command line."
 repository = "https://github.com/sirno/radior"
 license = "MIT"
-license-file = "LICENSE"
 
 [dependencies]
 chrono = "0.4.19"
