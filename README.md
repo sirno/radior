@@ -6,5 +6,5 @@ At last, another radio on the command line.
 
 ```bash
 brew install mpv
-cargo install --path .
+cargo install radior
 ```
