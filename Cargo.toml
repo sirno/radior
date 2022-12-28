@@ -9,7 +9,7 @@ license = "MIT"
 
 [dependencies]
 chrono = "0.4.23"
-clap = { version = "3.2.23", features = ["derive"] }
+clap = { version = "4.0.32", features = ["derive"] }
 cursive_buffered_backend = "0.6.1"
 derive_more = "0.99.17"
 libmpv-sirno = "2.0.2-fork.1"

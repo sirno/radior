@@ -20,10 +20,13 @@ use view::{playerhelp, radiohelp};
 use view::{PlayerView, RadioView};
 
 #[derive(Parser)]
-#[clap(version = "0.1", author = "Nicolas Ochsner <nicolasochsner@gmail.com>")]
+#[command(
+    version = "0.4.0",
+    author = "Nicolas Ochsner <nicolasochsner@gmail.com>"
+)]
 struct Opts {
     input: Option<String>,
-    #[clap(long, default_value = "~/.config/radior/config.toml")]
+    #[arg(long, default_value = "~/.config/radior/config.toml")]
     config: String,
 }
 
@@ -119,4 +122,15 @@ fn main() -> Result<(), libmpv::Error> {
     app.set_fps(10);
     app.run_with(backend_init);
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn verify_cli() {
+        use clap::CommandFactory;
+        Opts::command().debug_assert();
+    }
 }
