@@ -1,6 +1,6 @@
 [package]
 name = "radior"
-version = "0.3.0"
+version = "0.4.0"
 authors = ["nico <nicos.letters@gmail.com>"]
 edition = "2018"
 description = "At last, another radio on the command line."
@@ -12,7 +12,7 @@ chrono = "0.4.23"
 clap = { version = "3.2.23", features = ["derive"] }
 cursive_buffered_backend = "0.6.1"
 derive_more = "0.99.17"
-libmpv = "2.0.1"
+libmpv-sirno = "2.0.2-fork.1"
 shellexpand = "2.1.2"
 toml = "0.5.9"
 url = "2.3.1"
@@ -21,9 +21,6 @@ url = "2.3.1"
 version = "0.18.0"
 default-features = false
 features = ["termion-backend"]
-
-[patch.crates-io]
-libmpv = { git = "https://github.com/sirno/libmpv-rs.git" , branch="upgrade-libmpv" }
 
 [build-dependencies]
 pkg-config = "0.3.26"
