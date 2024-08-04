@@ -10,7 +10,6 @@ license = "MIT"
 [dependencies]
 chrono = "0.4.23"
 clap = { version = "4.0.32", features = ["derive"] }
-cursive_buffered_backend = "0.6.1"
 derive_more = "0.99.17"
 libmpv-sirno = "2.0.2-fork.1"
 shellexpand = "2.1.2"
@@ -18,7 +17,7 @@ toml = "0.5.9"
 url = "2.3.1"
 
 [dependencies.cursive]
-version = "0.18.0"
+version = "0.21.1"
 default-features = false
 features = ["termion-backend"]
 

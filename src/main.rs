@@ -9,9 +9,8 @@ mod view;
 use clap::Parser;
 use cursive::view::View;
 use cursive::views::Dialog;
-use cursive::Cursive;
+use cursive::{Cursive, CursiveExt};
 use radio::Radio;
-use shellexpand;
 use std::fs;
 use std::io::ErrorKind;
 use toml::Value;
@@ -58,12 +57,6 @@ fn main() -> Result<(), libmpv::Error> {
             }
             other => panic!("Problem opening config file: {:?}", other),
         },
-    };
-
-    let backend_init = || -> Box<dyn cursive::backend::Backend> {
-        let backend = cursive::backends::termion::Backend::init().unwrap();
-        let buffered_backend = cursive_buffered_backend::BufferedBackend::new(backend);
-        Box::new(buffered_backend)
     };
 
     let mut app = Cursive::new();
@@ -120,7 +113,7 @@ fn main() -> Result<(), libmpv::Error> {
     });
 
     app.set_fps(10);
-    app.run_with(backend_init);
+    app.run();
     Ok(())
 }
 
