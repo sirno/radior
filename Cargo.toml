@@ -1,6 +1,6 @@
 [package]
 name = "radior"
-version = "0.4.0"
+version = "0.4.1"
 authors = ["nico <nicos.letters@gmail.com>"]
 edition = "2018"
 description = "At last, another radio on the command line."
