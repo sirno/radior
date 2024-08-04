@@ -13,13 +13,13 @@ pub trait clock {
         let ds = s % 60;
         let dm = s / 60 % 60;
         let dh = s / 3600;
-        return format!("{:02}:{:02}:{:02}", dh, dm, ds);
+        format!("{:02}:{:02}:{:02}", dh, dm, ds)
     }
 }
 
 impl clock for Duration {
     fn get_seconds(&self) -> i64 {
-        return self.num_seconds();
+        self.num_seconds()
     }
 }
 
@@ -34,14 +34,14 @@ pub trait StreamState {
 
 impl StreamState for Mpv {
     fn get_display(&self) -> String {
-        return format!(
+        format!(
             "\n Title: {:size$} \n Volume: {} \n {} / {} \n ",
             self.get_title(),
             self.get_volume(),
             Duration::seconds(self.get_time() as i64).clock(),
             Duration::seconds(self.get_duration() as i64).clock(),
-            size = TILE_SIZE as usize,
-        );
+            size = TILE_SIZE,
+        )
     }
 
     fn get_title(&self) -> String {

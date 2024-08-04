@@ -18,11 +18,7 @@ impl PlayerView<TextView> {
         let mpv = Mpv::new()?;
         let content = TextContent::new(mpv.get_display());
         let view = TextView::new_with_content(content.clone());
-        Ok(Self {
-            view: view,
-            content: content,
-            mpv: mpv,
-        })
+        Ok(Self { view, content, mpv })
     }
 
     pub fn new_with_url(url: String) -> Result<Self, libmpv::Error> {
@@ -68,10 +64,7 @@ where
 impl RadioView<PlayerView<TextView>> {
     pub fn new(radio: Radio) -> Result<Self, libmpv::Error> {
         match PlayerView::new_with_url(radio.get_url()) {
-            Ok(player_view) => Ok(Self {
-                player_view: player_view,
-                radio: radio,
-            }),
+            Ok(player_view) => Ok(Self { player_view, radio }),
             Err(e) => Err(e),
         }
     }
@@ -84,19 +77,19 @@ impl<T: View> ViewWrapper for PlayerView<T> {
         match event {
             Event::Char('=') => {
                 self.mpv.add_property("volume", 2).unwrap();
-                return EventResult::Consumed(None);
+                EventResult::Consumed(None)
             }
             Event::Char('-') => {
                 self.mpv.add_property("volume", -2).unwrap();
-                return EventResult::Consumed(None);
+                EventResult::Consumed(None)
             }
             Event::Char('<') => {
                 self.mpv.playlist_previous_weak().unwrap();
-                return EventResult::Consumed(None);
+                EventResult::Consumed(None)
             }
             Event::Char('>') => {
                 self.mpv.playlist_next_weak().unwrap();
-                return EventResult::Consumed(None);
+                EventResult::Consumed(None)
             }
             Event::Char('p') => {
                 match self.mpv.get_property("pause") {
@@ -111,11 +104,11 @@ impl<T: View> ViewWrapper for PlayerView<T> {
                         println!("{:?}", e);
                     }
                 }
-                return EventResult::Consumed(None);
+                EventResult::Consumed(None)
             }
             Event::Refresh => {
                 self.content.set_content(self.get_display());
-                return self.view.on_event(event);
+                self.view.on_event(event)
             }
             _ => self.view.on_event(event),
         }
@@ -137,7 +130,7 @@ impl<T: View> ViewWrapper for RadioView<PlayerView<T>> {
                         None,
                     )])
                     .unwrap();
-                return EventResult::Consumed(None);
+                EventResult::Consumed(None)
             }
             Event::Char(',') => {
                 self.radio.prev();
@@ -149,11 +142,11 @@ impl<T: View> ViewWrapper for RadioView<PlayerView<T>> {
                         None,
                     )])
                     .unwrap();
-                return EventResult::Consumed(None);
+                EventResult::Consumed(None)
             }
             Event::Refresh => {
                 self.player_view.content.set_content(self.get_display());
-                return self.player_view.view.on_event(event);
+                self.player_view.view.on_event(event)
             }
             _ => self.player_view.on_event(event),
         }
@@ -179,7 +172,7 @@ Radio
 "###;
     let mut bindings = print_player_help().to_owned();
     bindings.push_str(radio_bindings);
-    return bindings;
+    bindings
 }
 
 fn print_general_help() -> String {

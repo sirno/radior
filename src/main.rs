@@ -76,13 +76,11 @@ fn main() -> Result<(), libmpv::Error> {
             let station_urls: Vec<&Value> = radios.values().collect();
 
             let mut station_index = 0;
-            let mut idx = 0;
-            for station in stations.iter() {
+            for (idx, station) in stations.iter().enumerate() {
                 if *station == input {
                     station_index = idx;
                     break;
                 }
-                idx += 1;
             }
 
             let radio = Radio::new_with_index(

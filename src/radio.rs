@@ -7,11 +7,11 @@ pub struct Radio {
 
 impl Radio {
     pub fn new_with_index(stations: Vec<String>, station_urls: Vec<String>, idx: usize) -> Self {
-        return Self {
+        Self {
             station_index: idx,
             station_list: stations,
-            station_urls: station_urls,
-        };
+            station_urls,
+        }
     }
 
     pub fn next(&mut self) {
@@ -27,10 +27,10 @@ impl Radio {
     }
 
     pub fn get_url(&self) -> String {
-        return self.station_urls[self.station_index].clone();
+        self.station_urls[self.station_index].clone()
     }
 
     pub fn get_name(&self) -> String {
-        return self.station_list[self.station_index].clone();
+        self.station_list[self.station_index].clone()
     }
 }
