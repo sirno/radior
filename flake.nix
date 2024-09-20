@@ -1,5 +1,5 @@
 {
-  description = "A very basic flake";
+  description = "Radior flake.";
 
   inputs = {
 
