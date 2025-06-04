@@ -5,7 +5,7 @@
 
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
 
-    flake-utils.url  = "github:numtide/flake-utils";
+    flake-utils.url = "github:numtide/flake-utils";
 
     rust-overlay = {
       url = "github:oxalica/rust-overlay";
@@ -14,8 +14,15 @@
 
   };
 
-  outputs = { self, nixpkgs, flake-utils, rust-overlay }: 
-    flake-utils.lib.eachDefaultSystem (system:
+  outputs =
+    {
+      self,
+      nixpkgs,
+      flake-utils,
+      rust-overlay,
+    }:
+    flake-utils.lib.eachDefaultSystem (
+      system:
       let
         overlays = [ (import rust-overlay) ];
         pkgs = import nixpkgs {
@@ -28,9 +35,9 @@
 
           name = "radior";
           version = "0.4.1";
-          src = ./.;
+          src = self;
 
-          nativeBuildInputs = with pkgs ; [
+          nativeBuildInputs = with pkgs; [
             pkg-config
             mpv-unwrapped
             rust-bin.nightly.latest.default
